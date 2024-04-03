@@ -11,17 +11,22 @@
     <script src="js/chart-device-data.js" type="text/javascript" charset="utf-8"></script>
     <link href="css/style.css" rel="stylesheet" />
 
-    <title>Temperature &amp; Humidity Real-time Data</title>
+    <title>Vind i Klavadalen</title>
+    <!--Wind Rose Charts : https://plotly.com/javascript/wind-rose-charts/ -->
 </head>
 
 <body>
-    <h1 class="flexHeader">
+    <h1>
+        <span>Klavadalen Sport og Spa</span>
+    </h1>
+        <h2 class="flexHeader">
+        <span>Sanntid vind</span>
         <span>
-            <span id="deviceCount">0 devices</span>
+            <!-- <span id="deviceCount">0 devices</span> -->
             <select id="listOfDevices" class="select_box"></select>
         </span>
-        <span>Temperature & Humidity Real-time Data</span>
-    </h1>
+    </h2>
+    <p>Normalt kommer det målinger ca. hvert 15-30 sek. Men det tar ofte litt lengre tid før hjulene kommer i gang og du får noe plot.</p>
     <div>
         <canvas id="iotChart"></canvas>
     </div>

@@ -29,6 +29,32 @@ app.use((req, res /* , next */) => {
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+wss.getUniqueID = function () {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4();
+};
+
+wss.on('connection', function connection(ws, req) {
+    ws.id = wss.getUniqueID();
+    console.log('New Client.ID: ' + ws.id);
+
+    wss.clients.forEach(function each(client) {
+        console.log(' - Have Client.ID: ' + client.id);
+    });
+
+       if (ws.readyState === WebSocket.OPEN) {
+      try {
+        var data = "{\"Hei på deg\":\""+ws.id+"\"}";
+        console.log(`Broadcasting data to new client ${data}`);
+        ws.send(data);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+});
+
 wss.broadcast = (data) => {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {

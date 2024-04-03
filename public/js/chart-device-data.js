@@ -5,26 +5,39 @@ $(document).ready(() => {
   // if deployed to a site supporting SSL, use wss://
   const protocol = document.location.protocol.startsWith('https') ? 'wss://' : 'ws://';
   const webSocket = new WebSocket(protocol + location.host);
+  const wind_dir = ["N ", "NØ", "Ø ", "SØ", "S ", "SV", "V ", "NV", "?"];
 
   // A class for holding the last N points of telemetry for a device
   class DeviceData {
+
     constructor(deviceId) {
       this.deviceId = deviceId;
       this.maxLen = 50;
       this.timeData = new Array(this.maxLen);
-      this.temperatureData = new Array(this.maxLen);
-      this.humidityData = new Array(this.maxLen);
+      this.windAvgData = new Array(this.maxLen);
+      this.windMaxData = new Array(this.maxLen);
+      this.windDirData = new Array(this.maxLen);
+    //   this.windStringData = new Array(this.maxLen);
     }
 
-    addData(time, temperature, humidity) {
-      this.timeData.push(time);
-      this.temperatureData.push(temperature);
-      this.humidityData.push(humidity || null);
+    addData(time, windAvg, windMax, wind_dir_deg) {
+    //   this.timeData.push(time);
+    // let date = new Date(Date.UTC(2018, 5, 26, 7, 0, 0));
+    let date = new Date(time);
+    let options = { hour12: false };
+      this.timeData.push(date.toLocaleTimeString("nb-NO", options) + " - "+ wind_dir[parseInt(wind_dir_deg, 10)/45]);
+
+      this.windAvgData.push(windAvg);
+      this.windMaxData.push(windMax || null);
+      this.windDirData.push(wind_dir_deg);
+    //    this.windStringData.push(wind_dir[parseInt(wind_dir_deg, 10)/45]);
 
       if (this.timeData.length > this.maxLen) {
         this.timeData.shift();
-        this.temperatureData.shift();
-        this.humidityData.shift();
+        this.windAvgData.shift();
+        this.windMaxData.shift();
+        this.windDirData.shift();
+        // this.windStringData.shift();
       }
     }
   }
@@ -58,8 +71,8 @@ $(document).ready(() => {
     datasets: [
       {
         fill: false,
-        label: 'Temperature',
-        yAxisID: 'Temperature',
+        label: 'Middel',
+        yAxisID: 'WindAvg',
         borderColor: 'rgba(255, 204, 0, 1)',
         pointBoarderColor: 'rgba(255, 204, 0, 1)',
         backgroundColor: 'rgba(255, 204, 0, 0.4)',
@@ -69,8 +82,8 @@ $(document).ready(() => {
       },
       {
         fill: false,
-        label: 'Humidity',
-        yAxisID: 'Humidity',
+        label: 'Kast',
+        yAxisID: 'WindGust',
         borderColor: 'rgba(24, 120, 240, 1)',
         pointBoarderColor: 'rgba(24, 120, 240, 1)',
         backgroundColor: 'rgba(24, 120, 240, 0.4)',
@@ -78,46 +91,74 @@ $(document).ready(() => {
         pointHoverBorderColor: 'rgba(24, 120, 240, 1)',
         spanGaps: true,
       }
+    //   ,
+    //   {
+    //     fill: false,
+    //     label: 'Retning',
+    //     yAxisID: 'Direction',
+    //     borderColor: 'rgba(24, 120, 140, 1)',
+    //     pointBoarderColor: 'rgba(24, 120, 140, 1)',
+    //     backgroundColor: 'rgba(24, 120, 140, 0.4)',
+    //     pointHoverBackgroundColor: 'rgba(24, 120, 140, 1)',
+    //     pointHoverBorderColor: 'rgba(24, 120, 140, 1)',
+    //     spanGaps: true,
+    //   }
     ]
   };
 
   const chartOptions = {
     scales: {
       yAxes: [{
-        id: 'Temperature',
+        id: 'WindAvg',
         type: 'linear',
         scaleLabel: {
-          labelString: 'Temperature (ºC)',
+          labelString: 'Vind (m/s)',
           display: true,
         },
         position: 'left',
         ticks: {
           suggestedMin: 0,
-          suggestedMax: 100,
+          suggestedMax: 20,
           beginAtZero: true
         }
       },
-      {
-        id: 'Humidity',
+            {
+        id: 'WindGust',
         type: 'linear',
         scaleLabel: {
-          labelString: 'Humidity (%)',
-          display: true,
+          labelString: 'Vind (m/s)',
+          display: false,
         },
         position: 'right',
         ticks: {
           suggestedMin: 0,
-          suggestedMax: 100,
+          suggestedMax: 20,
           beginAtZero: true
         }
-      }]
+      }
+    //   ,
+    //   {
+    //     id: 'Direction',
+    //     type: 'linear',
+    //     scaleLabel: {
+    //       labelString: 'Retning (grader)',
+    //       display: true,
+    //     },
+    //     position: 'right',
+    //     ticks: {
+    //       suggestedMin: -100,
+    //       suggestedMax: 400,
+    //       beginAtZero: false
+    //     }
+    //   }
+]
     }
   };
 
   // Get the context of the canvas element we want to select
   const ctx = document.getElementById('iotChart').getContext('2d');
   const myLineChart = new Chart(
-    ctx,
+    ctx, 
     {
       type: 'line',
       data: chartData,
@@ -127,13 +168,13 @@ $(document).ready(() => {
   // Manage a list of devices in the UI, and update which device data the chart is showing
   // based on selection
   let needsAutoSelect = true;
-  const deviceCount = document.getElementById('deviceCount');
+//   const deviceCount = document.getElementById('deviceCount');
   const listOfDevices = document.getElementById('listOfDevices');
   function OnSelectionChange() {
     const device = trackedDevices.findDevice(listOfDevices[listOfDevices.selectedIndex].text);
     chartData.labels = device.timeData;
-    chartData.datasets[0].data = device.temperatureData;
-    chartData.datasets[1].data = device.humidityData;
+    chartData.datasets[0].data = device.windAvgData;
+    chartData.datasets[1].data = device.windMaxData;
     myLineChart.update();
   }
   listOfDevices.addEventListener('change', OnSelectionChange, false);
@@ -150,7 +191,8 @@ $(document).ready(() => {
       console.log(messageData);
 
       // time and either temperature or humidity are required
-      if (!messageData.MessageDate || (!messageData.IotData.temperature && !messageData.IotData.humidity)) {
+      if (!messageData.MessageDate || (!messageData.IotData.wind_avg_m_s && !messageData.IotData.wind_max_m_s)) {
+        console.log('No wind');
         return;
       }
 
@@ -158,13 +200,13 @@ $(document).ready(() => {
       const existingDeviceData = trackedDevices.findDevice(messageData.DeviceId);
 
       if (existingDeviceData) {
-        existingDeviceData.addData(messageData.MessageDate, messageData.IotData.temperature, messageData.IotData.humidity);
+        existingDeviceData.addData(messageData.MessageDate, messageData.IotData.wind_avg_m_s, messageData.IotData.wind_max_m_s, messageData.IotData.wind_dir_deg);
       } else {
         const newDeviceData = new DeviceData(messageData.DeviceId);
         trackedDevices.devices.push(newDeviceData);
         const numDevices = trackedDevices.getDevicesCount();
-        deviceCount.innerText = numDevices === 1 ? `${numDevices} device` : `${numDevices} devices`;
-        newDeviceData.addData(messageData.MessageDate, messageData.IotData.temperature, messageData.IotData.humidity);
+        // deviceCount.innerText = numDevices === 1 ? `${numDevices} device` : `${numDevices} devices`;
+        newDeviceData.addData(messageData.MessageDate, messageData.IotData.wind_avg_m_s, messageData.IotData.wind_max_m_s, messageData.IotData.wind_dir_deg);
 
         // add device to the UI list
         const node = document.createElement('option');
