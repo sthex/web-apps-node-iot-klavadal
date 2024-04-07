@@ -15,7 +15,7 @@
             "sourceMaps": true,
             "env": {
                 "NODE_ENV": "local",
-                "IotHubConnectionString": "",
+                "IotHubConnectionString": $(IotHubConnectionString),
                 "EventHubConsumerGroup": "cggateway"
             }
         }
