@@ -7,7 +7,7 @@ async function getBlob(blobContainerConnectionString) {
 
     const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
     const containerClient = blobServiceClient.getContainerClient(containerName);
-    const blobnames = await getLastBlobNames(containerClient, 'HexIoTHub/00/', 150);
+    const blobnames = await getLastBlobNames(containerClient, 'HexIoTHub/00/', 15); //not 150?
 
     var temperatures = {
         t1: [],
