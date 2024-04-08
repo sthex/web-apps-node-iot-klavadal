@@ -77,12 +77,10 @@ wss.on('connection', async function connection(ws, req) {
     }
     catch (exc) {
         console.error(exc);
-        var jsonString = JSON.stringify(exc);
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 try {
-                    let data = "{\"Error\":\"" + client.id + "\"}";
-                    console.log(`Broadcasting data ${jsonString}`);
+                    let data = "{\"Error\":\"" + exc + "\"}";
                     client.send(data);
                 } catch (e) {
                     console.error(e);
