@@ -48,6 +48,18 @@ wss.on('connection', async function connection(ws, req) {
     ws.id = wss.getUniqueID();
     console.log('New Client.ID: ' + ws.id);
 
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            try {
+                let data = "{\"Hallo\":\"" + client.id + "\", \"NumConnected\":" + wss.clients.size + "}";
+                console.log(`Broadcasting data ${data}`);
+                client.send(data);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    });
+
     try {
         var blob1 = await getBlob(blobContainerConnectionString);
         console.log(blob1);
@@ -63,19 +75,23 @@ wss.on('connection', async function connection(ws, req) {
             }
         });
     }
-    catch (exc) { console.error(exc); return; }
-
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            try {
-                let data = "{\"Hallo\":\"" + client.id + "\", \"NumConnected\":" + wss.clients.size + "}";
-                console.log(`Broadcasting data ${data}`);
-                client.send(data);
-            } catch (e) {
-                console.error(e);
+    catch (exc) {
+        console.error(exc);
+        var jsonString = JSON.stringify(exc);
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                try {
+                    let data = "{\"Error\":\"" + client.id + "\"}";
+                    console.log(`Broadcasting data ${jsonString}`);
+                    client.send(data);
+                } catch (e) {
+                    console.error(e);
+                }
             }
-        }
-    });
+        });
+    }
+
+
 });
 
 wss.broadcast = (data) => {

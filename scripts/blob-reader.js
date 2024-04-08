@@ -27,40 +27,40 @@ async function getBlob(blobContainerConnectionString) {
         // Download the blob content
         const response = await blobClient.download();
         const blobContent = await streamToString(response.readableStreamBody);
-        try {
-            // console.log('Blob content:', blobContent);
-            const time = blobTime(blobContent);
-            console.log('- Blob time:', Date(time));
-            deviceId = blobDeviceId(blobContent);
-            console.log('- Blob device:', deviceId);
-            if (deviceId === 'epdFjell') {
-                const temp = epdFjellUteTemperature(blobContent);
-                console.log('- Utetemp:', temp);
-                temperatures.t1.push({ "time": time, "celsius": temp });
-            }
-            else if (deviceId === 'T5_n4') {
+        // try {
+        // console.log('Blob content:', blobContent);
+        const time = blobTime(blobContent);
+        console.log('- Blob time:', Date(time));
+        deviceId = blobDeviceId(blobContent);
+        console.log('- Blob device:', deviceId);
+        if (deviceId === 'epdFjell') {
+            const temp = epdFjellUteTemperature(blobContent);
+            console.log('- Utetemp:', temp);
+            temperatures.t1.push({ "time": time, "celsius": temp });
+        }
+        else if (deviceId === 'T5_n4') {
 
-                const ifrom = blobContent.indexOf("deviceId") - 2;
-                const ilast = blobContent.indexOf("}", ifrom) + 1;
-                if (ifrom > 50) {
-                    let inner = blobContent.substring(ifrom, ilast);
-                    // Parse the content as JSON
-                    const jsonObject = JSON.parse(inner);
-                    console.log('JSON content:', jsonObject);
-                    if (jsonObject.deviceId === 'T5_n4') {
-                        // console.log('Sensors content:', jsonObject.msg.Sensors);
-                        // const fra=jsonObject.msg.Sensors.indexOf(",Stue;")+6;
-                        // const til=jsonObject.msg.Sensors.indexOf(",",fra);
-                        // const tUteStr=jsonObject.msg.Sensors.substring(fra,til);
-                        var temperature = jsonObject.t1;
-                        console.log('- Utetemp kablet:', temperature);
-                        temperatures.t2.push({ "time": time, "celsius": temperature });
-                        // temperatures.t2t.push({ "time": time, "celsius": temperature });
-                        // temperatures.t2.push({ "time": time, "celsius": temperature });
-                    }
+            const ifrom = blobContent.indexOf("deviceId") - 2;
+            const ilast = blobContent.indexOf("}", ifrom) + 1;
+            if (ifrom > 50) {
+                let inner = blobContent.substring(ifrom, ilast);
+                // Parse the content as JSON
+                const jsonObject = JSON.parse(inner);
+                console.log('JSON content:', jsonObject);
+                if (jsonObject.deviceId === 'T5_n4') {
+                    // console.log('Sensors content:', jsonObject.msg.Sensors);
+                    // const fra=jsonObject.msg.Sensors.indexOf(",Stue;")+6;
+                    // const til=jsonObject.msg.Sensors.indexOf(",",fra);
+                    // const tUteStr=jsonObject.msg.Sensors.substring(fra,til);
+                    var temperature = jsonObject.t1;
+                    console.log('- Utetemp kablet:', temperature);
+                    temperatures.t2.push({ "time": time, "celsius": temperature });
+                    // temperatures.t2t.push({ "time": time, "celsius": temperature });
+                    // temperatures.t2.push({ "time": time, "celsius": temperature });
                 }
             }
-        } catch (e) { console.error(e) }
+        }
+        // } catch (e) { console.error(e) }
     }
     temperatures.t1.sort((a, b) => a.time - b.time);
     temperatures.t2.sort((a, b) => a.time - b.time);
