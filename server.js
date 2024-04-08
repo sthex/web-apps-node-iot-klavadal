@@ -77,10 +77,10 @@ wss.on('connection', async function connection(ws, req) {
     }
     catch (exc) {
         console.error(exc);
+        let data = "{\"ErrorBlob\":\"" + exc + "\"}";
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 try {
-                    let data = "{\"Error\":\"" + exc + "\"}";
                     client.send(data);
                 } catch (e) {
                     console.error(e);
