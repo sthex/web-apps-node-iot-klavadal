@@ -72,7 +72,7 @@ $(document).ready(() => {
             {
                 fill: false,
                 label: 'Middel',
-                yAxisID: 'WindAvg',
+                yAxisID: 'WindY',
                 borderColor: 'rgba(255, 204, 0, 1)',
                 pointBoarderColor: 'rgba(255, 204, 0, 1)',
                 backgroundColor: 'rgba(255, 204, 0, 0.4)',
@@ -83,33 +83,7 @@ $(document).ready(() => {
             {
                 fill: false,
                 label: 'Kast',
-                yAxisID: 'WindGust',
-                borderColor: 'rgba(24, 120, 240, 1)',
-                pointBoarderColor: 'rgba(24, 120, 240, 1)',
-                backgroundColor: 'rgba(24, 120, 240, 0.4)',
-                pointHoverBackgroundColor: 'rgba(24, 120, 240, 1)',
-                pointHoverBorderColor: 'rgba(24, 120, 240, 1)',
-                spanGaps: true,
-            }
-        ]
-    };
-    const chartDataT = {
-        datasets: [
-            {
-                fill: false,
-                label: 't1',
-                yAxisID: 't1',
-                borderColor: 'rgba(0, 204, 0, 1)',
-                pointBoarderColor: 'rgba(0, 204, 0, 1)',
-                backgroundColor: 'rgba(0, 204, 0, 0.4)',
-                pointHoverBackgroundColor: 'rgba(0, 204, 0, 1)',
-                pointHoverBorderColor: 'rgba(0, 204, 0, 1)',
-                spanGaps: true,
-            },
-            {
-                fill: false,
-                label: 't2',
-                yAxisID: 't2',
+                yAxisID: 'WindY',
                 borderColor: 'rgba(24, 120, 240, 1)',
                 pointBoarderColor: 'rgba(24, 120, 240, 1)',
                 backgroundColor: 'rgba(24, 120, 240, 0.4)',
@@ -120,70 +94,113 @@ $(document).ready(() => {
         ]
     };
 
+    const chartDataT = {
+        datasets: [
+            {
+                type: 'scatter',
+                label: 't1 tråløs',
+                yAxisID: 'TemperatureY',
+                borderColor: 'rgba(0, 204, 0, 1)',
+                pointBoarderColor: 'rgba(0, 204, 0, 1)',
+                backgroundColor: 'rgba(0, 204, 0, 0.4)',
+                pointHoverBackgroundColor: 'rgba(0, 204, 0, 1)',
+                pointHoverBorderColor: 'rgba(0, 204, 0, 1)',
+            },
+            {
+                type: 'scatter',
+                label: 't2 kablet',
+                yAxisID: 'TemperatureY',
+                borderColor: 'rgba(240, 0, 0, 1)',
+                pointBoarderColor: 'rgba(240, 0, 0, 1)',
+                backgroundColor: 'rgba(240, 0, 0, 0.4)',
+                pointHoverBackgroundColor: 'rgba(240, 0, 0, 1)',
+                pointHoverBorderColor: 'rgba(240, 0, 0, 1)',
+            }
+        ]
+    };
+    // const chartDataT = {
+    //     labels: labels1, // place labels array in correct spot
+    //     datasets: [{
+    //         type: 'line',
+    //         label: 'Line Dataset',
+    //         data: [10, 10, 10, 10],
+    //         backgroundColor: 'rgb(0, 0, 255)',
+    //         borderColor: 'rgb(0, 0, 255)',
+    //         xAxisID: 'x2' // Specify to which axes to link
+    //     },
+    //     {
+    //         type: 'scatter',
+    //         backgroundColor: 'rgb(0, 0, 0)',
+    //         borderColor: 'rgb(255, 0, 0)',
+    //         data: [{
+    //             x: 1,
+    //             y: 36
+    //         }, {
+    //             x: 1,
+    //             y: 37
+    //         }, {
+    //             x: 1,
+    //             y: 40
+    //         }, {
+    //             x: 1,
+    //             y: 40
+    //         }]
+    //     }
+    //     ],
+    // }
+
     const chartOptions = {
         scales: {
             yAxes: [{
-                id: 'WindAvg',
+                id: 'WindY',
                 type: 'linear',
                 scaleLabel: {
                     labelString: 'Vind (m/s)',
                     display: true,
                 },
-                position: 'left',
-                ticks: {
-                    suggestedMin: 0,
-                    suggestedMax: 20,
-                    beginAtZero: true
-                }
-            },
-            {
-                id: 'WindGust',
-                type: 'linear',
-                scaleLabel: {
-                    labelString: 'Vind (m/s)',
-                    display: false,
-                },
                 position: 'right',
                 ticks: {
-                    suggestedMin: 0,
-                    suggestedMax: 20,
-                    beginAtZero: true
+                    min: 0,
+                    suggestedMax: 24,
+                    stepSize: 3
                 }
-            }
+            },
+
             ]
         }
     };
+
     const chartOptionsT = {
         scales: {
+            xAxes: [{
+                ticks: {
+                    userCallback: function (label, index, labels) {
+                        const d = new Date(label);
+                        // let options = { hour12: false, };
+                        // return d.toLocaleTimeString("nb-NO", options);
+                        return Intl.DateTimeFormat('nb-NO', { weekday: 'short' }).format(d) + " "
+                            + Intl.DateTimeFormat('nb-NO', { hour: '2-digit' }).format(d) + ":"
+                            + Intl.DateTimeFormat('nb-NO', { minute: '2-digit' }).format(d);
+                        // return moment(label).format("DD/MM/YY");
+                    }
+                }
+            }],
             yAxes: [{
-                id: 't1',
-                type: 'linear',
+                id: 'TemperatureY',
                 scaleLabel: {
                     labelString: 'Temperatur (C)',
                     display: true,
                 },
                 position: 'left',
                 ticks: {
-                    suggestedMin: 0,
+                    suggestedMin: -5,
                     suggestedMax: 10,
-                    beginAtZero: true
-                }
-            },
-            {
-                id: 't2',
-                type: 'linear',
-                scaleLabel: {
-                    labelString: 'Temperatur (C)',
-                    display: false,
+                    stepSize: 2
                 },
-                position: 'right',
-                ticks: {
-                    suggestedMin: 0,
-                    suggestedMax: 10,
-                    beginAtZero: true
+                grid: {
+                    display: false
                 }
-            }
-            ]
+            }]
         }
     };
     // Get the context of the canvas element we want to select
@@ -200,10 +217,12 @@ $(document).ready(() => {
     const myTempChart = new Chart(
         tmp,
         {
-            type: 'line',
+            type: 'scatter',
             data: chartDataT,
             options: chartOptionsT,
         });
+
+
     // Manage a list of devices in the UI, and update which device data the chart is showing
     // based on selection
     let needsAutoSelect = true;
@@ -237,17 +256,19 @@ $(document).ready(() => {
                 }
                 else if (messageData.t1) {
 
-                    chartDataT.labels = messageData.t1.map(function (e) {
-                        let date = new Date(e.time);
-                        let options = { hour12: false };
-                        return date.toLocaleTimeString("nb-NO", options);
-                    });
-                    chartDataT.datasets[0].data = messageData.t1.map(function (e) {
-                        return e.celsius;
-                    });
-                    chartDataT.datasets[1].data = messageData.t2.map(function (e) {
-                        return e.celsius;
-                    });
+                    // chartDataT.labels = messageData.t1.map(function (e) {
+                    //     let date = new Date(e.x);
+                    //     let options = { hour12: false };
+                    //     return date.toLocaleTimeString("nb-NO", options);
+                    // });
+                    chartDataT.datasets[0].data = messageData.t1;
+                    chartDataT.datasets[1].data = messageData.t2;
+                    // chartDataT.datasets[0].data = messageData.t1.map(function (e) {
+                    //     return e.celsius;
+                    // });
+                    // chartDataT.datasets[1].data = messageData.t2.map(function (e) {
+                    //     return e.celsius;
+                    // });
                     myTempChart.update();
                 }
                 else

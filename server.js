@@ -25,7 +25,7 @@ if (!blobContainerConnectionString) {
     console.error(`Environment variable BlobContainerConnectionString must be specified.`);
     return;
 }
-console.log(`Using IoT Hub connection string [${blobContainerConnectionString}]`);
+console.log(`Using storage connection string [${blobContainerConnectionString}]`);
 
 // Redirect requests to the public subdirectory to the root
 const app = express();
@@ -36,6 +36,8 @@ app.use((req, res /* , next */) => {
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+var blob1;
+var gotBlobTime;
 
 wss.getUniqueID = function () {
     function s4() {
@@ -61,8 +63,10 @@ wss.on('connection', async function connection(ws, req) {
     });
 
     try {
-        var blob1 = await getBlob(blobContainerConnectionString);
-        console.log(blob1);
+        if (!gotBlobTime || !blob1 || new Date().getMinutes() - gotBlobTime.getMinutes() > 30) {
+            blob1 = await getBlob(blobContainerConnectionString);
+            gotBlobTime = new Date();
+        }
         var jsonString = JSON.stringify(blob1);
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
