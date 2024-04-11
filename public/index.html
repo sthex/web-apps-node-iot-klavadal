@@ -1,41 +1,89 @@
 <!doctype html>
 
 <html lang="en">
+
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"" type="text/javascript" charset="utf-8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.jquery.com/jquery-3.4.0.min.js"
+        integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"" type=" text/javascript"
+        charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript"
+        charset="utf-8"></script>
     <script src="js/chart-device-data.js" type="text/javascript" charset="utf-8"></script>
     <link href="css/style.css" rel="stylesheet" />
 
     <title>Vind i Klavadalen</title>
     <!--Wind Rose Charts : https://plotly.com/javascript/wind-rose-charts/ -->
 </head>
+<style>
+    span.a {
+        display: inline;
+        /* the default for span */
+        width: 300px;
+        height: 300px;
+        padding: 5px;
+        border: 1px solid blue;
+        background-color: rgb(222, 235, 247);
+    }
+
+    span.b {
+        display: inline-block;
+        width: 48%;
+        min-width: 400px;
+        height: auto;
+        padding: 0px;
+        border-radius: 10px;
+
+        border: 1px solid blue;
+        background-color: rgb(232, 242, 251);
+    }
+
+    span.c {
+        display: block;
+        width: 300px;
+        height: 300px;
+        padding: 5px;
+        border: 1px solid blue;
+        background-color: yellow;
+    }
+</style>
 
 <body>
     <h1>
         <span>Klavadalen Sport og Spa</span>
     </h1>
-        <h2 class="flexHeader">
-        <span>Sanntid vind</span>
+
+    <h2 class="flexHeader">
+        <!-- <span>Sanntid vind</span> -->
         <span>
             <!-- <span id="deviceCount">0 devices</span> -->
             <select id="listOfDevices" class="select_box"></select>
         </span>
     </h2>
-    <p>Normalt kommer det målinger ca. hvert 15 sek. Men det kan ta litt lengre tid før hjulene kommer i gang og du får noe plot.</p>
-    <div>
-        <canvas id="iotChart"></canvas>
-    </div>
-        <span>Utetemperatur siste døgn</span>
-    <div>
-        <canvas id="tmpChart"></canvas>
-    </div>
+
+    <span>Normalt kommer det vindmåling ca. hvert 15 sek. Men det kan ta litt lengre tid før hjulene kommer i gang og du
+        får noe plot.</span>
+
+    <br />
+    <span class="b">
+        <h3>Sanntid vind</h3>
+        <div>
+            <canvas id="iotChart" width="90" height="90" style="width:90px;max-width:100%"></canvas>
+        </div>
+    </span>
+    <span class="b">
+        <h3>Temperatur</h3>
+        <div>
+            <canvas id="tmpChart" width="90" height="90" style="width:90px;max-width:100%"></canvas>
+        </div>
+
+    </span>
+    <br />
     <span id="clientCount">Antall besøkende: 0</span>
 
 </body>
 
-</html> 
+</html>
