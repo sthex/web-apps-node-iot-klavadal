@@ -97,57 +97,17 @@ $(document).ready(() => {
     const chartDataT = {
         datasets: [
             {
-                type: 'scatter',
-                label: 't1 tråløs',
+                fill: true,
+                label: 'Ute',
                 yAxisID: 'TemperatureY',
-                borderColor: 'rgba(0, 204, 0, 1)',
-                pointBoarderColor: 'rgba(0, 204, 0, 1)',
-                backgroundColor: 'rgba(0, 204, 0, 0.4)',
-                pointHoverBackgroundColor: 'rgba(0, 204, 0, 1)',
-                pointHoverBorderColor: 'rgba(0, 204, 0, 1)',
-            },
-            {
-                type: 'scatter',
-                label: 't2 kablet',
-                yAxisID: 'TemperatureY',
-                borderColor: 'rgba(240, 0, 0, 1)',
-                pointBoarderColor: 'rgba(240, 0, 0, 1)',
-                backgroundColor: 'rgba(240, 0, 0, 0.4)',
-                pointHoverBackgroundColor: 'rgba(240, 0, 0, 1)',
-                pointHoverBorderColor: 'rgba(240, 0, 0, 1)',
+                borderColor: 'rgba(254, 60, 60, 1)',
+                pointBoarderColor: 'rgba(254, 0, 0, 1)',
+                backgroundColor: 'rgba(204, 0, 0, 0.1)',
+                pointHoverBackgroundColor: 'rgba(204, 0, 0, 1)',
+                pointHoverBorderColor: 'rgba(   204, 0, 0, 1)',
             }
         ]
     };
-    // const chartDataT = {
-    //     labels: labels1, // place labels array in correct spot
-    //     datasets: [{
-    //         type: 'line',
-    //         label: 'Line Dataset',
-    //         data: [10, 10, 10, 10],
-    //         backgroundColor: 'rgb(0, 0, 255)',
-    //         borderColor: 'rgb(0, 0, 255)',
-    //         xAxisID: 'x2' // Specify to which axes to link
-    //     },
-    //     {
-    //         type: 'scatter',
-    //         backgroundColor: 'rgb(0, 0, 0)',
-    //         borderColor: 'rgb(255, 0, 0)',
-    //         data: [{
-    //             x: 1,
-    //             y: 36
-    //         }, {
-    //             x: 1,
-    //             y: 37
-    //         }, {
-    //             x: 1,
-    //             y: 40
-    //         }, {
-    //             x: 1,
-    //             y: 40
-    //         }]
-    //     }
-    //     ],
-    // }
 
     const chartOptions = {
         scales: {
@@ -172,19 +132,6 @@ $(document).ready(() => {
 
     const chartOptionsT = {
         scales: {
-            xAxes: [{
-                ticks: {
-                    userCallback: function (label, index, labels) {
-                        const d = new Date(label);
-                        // let options = { hour12: false, };
-                        // return d.toLocaleTimeString("nb-NO", options);
-                        return Intl.DateTimeFormat('nb-NO', { weekday: 'short' }).format(d) + " "
-                            + Intl.DateTimeFormat('nb-NO', { hour: '2-digit' }).format(d) + ":"
-                            + Intl.DateTimeFormat('nb-NO', { minute: '2-digit' }).format(d);
-                        // return moment(label).format("DD/MM/YY");
-                    }
-                }
-            }],
             yAxes: [{
                 id: 'TemperatureY',
                 scaleLabel: {
@@ -192,18 +139,17 @@ $(document).ready(() => {
                     display: true,
                 },
                 position: 'left',
-                ticks: {
-                    suggestedMin: -5,
-                    suggestedMax: 10,
-                    stepSize: 2
-                },
-                grid: {
-                    display: false
-                }
+                // ticks: {
+                //     suggestedMin: -4,
+                //     suggestedMax: 10,
+                //     stepSize: 2
+                // },
+                // grid: {
+                //     display: false
+                // }
             }]
         }
     };
-    // Get the context of the canvas element we want to select
     const ctx = document.getElementById('iotChart').getContext('2d');
     const myLineChart = new Chart(
         ctx,
@@ -217,7 +163,7 @@ $(document).ready(() => {
     const myTempChart = new Chart(
         tmp,
         {
-            type: 'scatter',
+            type: 'line',
             data: chartDataT,
             options: chartOptionsT,
         });
@@ -249,25 +195,22 @@ $(document).ready(() => {
             const messageData = JSON.parse(message.data);
             console.log(messageData);
 
-            if (!messageData.MessageDate || messageData.IotData.model != "Cotech-513326") {// (!messageData.IotData.wind_avg_m_s && !messageData.IotData.wind_max_m_s)) {
-
+            if (!messageData.MessageDate || messageData.IotData.model != "Cotech-513326") {
                 if (messageData.NumConnected > -1) {
                     clientCount.innerText = `${messageData.NumConnected} besøkende`;
                 }
                 else if (messageData.t1) {
 
-                    // chartDataT.labels = messageData.t1.map(function (e) {
-                    //     let date = new Date(e.x);
-                    //     let options = { hour12: false };
-                    //     return date.toLocaleTimeString("nb-NO", options);
-                    // });
-                    chartDataT.datasets[0].data = messageData.t1;
-                    chartDataT.datasets[1].data = messageData.t2;
-                    // chartDataT.datasets[0].data = messageData.t1.map(function (e) {
-                    //     return e.celsius;
-                    // });
+                    chartDataT.labels = messageData.t1.map(function (e) {
+                        let date = new Date(e.x);
+                        let options = { hour12: false };
+                        return Intl.DateTimeFormat('nb-NO', { weekday: 'short' }).format(date) + date.toLocaleTimeString("nb-NO", options);
+                    });
+                    chartDataT.datasets[0].data = messageData.t1.map(function (e) {
+                        return e.y;
+                    });
                     // chartDataT.datasets[1].data = messageData.t2.map(function (e) {
-                    //     return e.celsius;
+                    //     return e.y;
                     // });
                     myTempChart.update();
                 }

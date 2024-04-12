@@ -32,16 +32,18 @@ async function getBlob(blobContainerConnectionString) {
         // console.log('- Blob time:', Date(time));
         deviceId = blobDeviceId(blobContent);
         // console.log('- Blob device:', deviceId);
-        if (deviceId === 'epdFjell') {
-            const temp = UteTemperature_epdFjell(blobContent);
-            console.log('- Utetemp:', temp);
-            temperatures.t1.push({ "x": time, "y": temp });
-        }
-        else if (deviceId === 'T5_n4') {
+
+        if (deviceId === 'T5_n4') {
             const temp = UteTemperature_T5_n4(blobContent);
             console.log('- Utetemp kablet:', temp);
-            temperatures.t2.push({ "x": time, "y": temp });
+            temperatures.t1.push({ "x": time, "y": temp });
         }
+        // else if (deviceId === 'epdFjell') {
+        //     const temp = UteTemperature_epdFjell(blobContent);
+        //     console.log('- Utetemp:', temp);
+        //     temperatures.t2.push({ "x": time, "y": temp });
+        // }
+
         // else {
         //     const ifrom = blobContent.indexOf("deviceId") - 2;
         //     const ilast = blobContent.indexOf("}", ifrom) + 1;
@@ -65,8 +67,8 @@ async function getBlob(blobContainerConnectionString) {
 
         // } catch (e) { console.error(e) }
     }
-    temperatures.t1.sort((a, b) => a.time - b.time);
-    temperatures.t2.sort((a, b) => a.time - b.time);
+    temperatures.t1.sort((a, b) => a.x - b.x); // x=tid
+    temperatures.t2.sort((a, b) => a.x - b.x);
 
     return temperatures;
 }
