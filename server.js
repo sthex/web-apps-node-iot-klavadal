@@ -39,6 +39,11 @@ const wss = new WebSocket.Server({ server });
 var blob1;
 var gotBlobTime;
 
+const maxLen = 50;
+var cachedPayloads = new Array(maxLen);
+
+
+
 wss.getUniqueID = function () {
     function s4() {
         return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -61,6 +66,19 @@ wss.on('connection', async function connection(ws, req) {
             }
         }
     });
+
+    if (cachedPayloads)
+        cachedPayloads.forEach((payload) => {
+            if (ws.readyState === WebSocket.OPEN) {
+                try {
+                    console.log(`Broadcasting cached data ${payload}`);
+                    ws.send(payload);
+                } catch (e) {
+                    console.error(e);
+                }
+            }
+        })
+
 
     try {
         if (!gotBlobTime || !blob1 || new Date().getMinutes() - gotBlobTime.getMinutes() > 30) {
@@ -124,7 +142,17 @@ const eventHubReader = new EventHubReader(iotHubConnectionString, eventHubConsum
                 DeviceId: deviceId,
             };
 
-            wss.broadcast(JSON.stringify(payload));
+            // wss.broadcast(JSON.stringify(payload));
+            const str = JSON.stringify(payload);
+            wss.broadcast(str);
+
+            if (!cachedPayloads)
+                cachedPayloads = new Array(maxLen);
+
+            cachedPayloads.push(str);
+            if (cachedPayloads.length > maxLen) {
+                cachedPayloads.shift();
+            }
         } catch (err) {
             console.error('Error broadcasting: [%s] from [%s].', err, message);
         }
